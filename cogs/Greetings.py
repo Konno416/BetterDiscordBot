@@ -26,9 +26,19 @@ class Greetings(commands.Cog):
         await interaction.response.send_message("Hello, I am the tutorial bot. How are you, " + str(interaction.user) + "?")
 
     @commands.Cog.listener()
-    async def on_member_join(self, member):
+    async def on_member_join(self, member:discord.Member=None):
         channel = self.client.get_channel(1087507058070401158)
-        await channel.send('Welcome to the server ' + member.name + '!')
+        name = member.name
+        pic = member.display_avatar.url
+        
+        embed = discord.Embed(
+            color=discord.Color.blurple(),
+            title="Welcome to the Server!", 
+            description=f"I hope you enjoy your stay {name}!"    
+        )
+        embed.set_image(url="https://i.pinimg.com/originals/ec/9a/42/ec9a42641385d573d3d066bb7d215e88.png")
+        embed.set_thumbnail(url=pic)
+        await member.send(embed=embed)
 
     @commands.Cog.listener()
     async def on_member_remove(self, member):

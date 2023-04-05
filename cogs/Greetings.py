@@ -27,7 +27,6 @@ class Greetings(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_join(self, member:discord.Member=None):
-        channel = self.client.get_channel(1087507058070401158)
         name = member.name
         pic = member.display_avatar.url
         

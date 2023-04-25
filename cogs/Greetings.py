@@ -9,6 +9,7 @@ import json
 import os
 from dotenv import load_dotenv
 
+
 load_dotenv()
 
 
@@ -26,9 +27,10 @@ class Greetings(commands.Cog):
         await interaction.response.send_message("Hello, I am the tutorial bot. How are you, " + str(interaction.user) + "?")
 
     @commands.Cog.listener()
-    async def on_member_join(self, member):
+    async def on_member_join(self, member, interaction: discord.Interaction):
         channel = self.client.get_channel(1087507058070401158)
         await channel.send('Welcome to the server ' + member.name + '!')
+        await interaction.response.send_message()
 
     @commands.Cog.listener()
     async def on_member_remove(self, member):

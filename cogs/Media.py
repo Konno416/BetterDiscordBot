@@ -28,6 +28,7 @@ kick_gifs = ["https://i.pinimg.com/originals/4f/90/40/4f9040a91c1a888a9e0ff2f02f
 
 
 SERVERID = os.getenv("SERVERID")
+
 class Media(commands.Cog):
     def __init__(self, client: commands.Bot):
         self.client = client

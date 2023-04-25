@@ -8,6 +8,8 @@ import json
 import os
 from dotenv import load_dotenv
 import wavelink
+import mysql.connector
+from mysql.connector import Error
 
 load_dotenv()
 

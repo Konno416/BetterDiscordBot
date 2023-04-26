@@ -20,7 +20,6 @@ class Music(commands.Cog):
     @commands.Cog.listener()
     async def on_ready(self):
         print("Music.py is ready")
-        print("-------------------")
 
     @commands.command()
     async def sync(self, ctx) -> None:

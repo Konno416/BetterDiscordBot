@@ -28,14 +28,15 @@ class Admin(commands.Cog):
         print("Admin.py is ready!")
 
     @commands.Cog.listener()
-    async def on_message(self, message):
+    async def on_message(self, message, interaction: discord.Interaction):
+        
         for i in profane:
             words = message.content.split()
-        for x in words:
-            if x == i:
-                await message.delete()
-                await user.send("Don't type that again or else!")
-                await user.send("https://www.ilcovodelnerd.com/wp-content/uploads/2023/03/88257.png")
+            for x in words:
+                if x == i:
+                    await message.delete()
+                    await user.send("Don't type that again or else!")
+                    await user.send("https://www.ilcovodelnerd.com/wp-content/uploads/2023/03/88257.png")
         await self.client.process_commands(message)
 
     
@@ -143,6 +144,53 @@ class Admin(commands.Cog):
                 Recieved_Data.append({"Id": str(row[0]), "Message": str(row[2])})
 
             await interaction.response.send_message("All Stored Data: \n \n " + json.dumps(Recieved_Data, indent=1))
+
+        except mysql.connector.Error as error:
+            print("Failed to get record from MySQL table: {}".format(error))
+
+        finally:
+            if connection.is_connected():
+                cursor.close()
+                connection.close()
+                print("Mysql connection is closed")
+
+
+    @app_commands.command(name="statistics", description="Shows the statistics for a selected user")
+    async def statistics(self, interaction: discord.Interaction, user: discord.Member):
+
+        pic = user.avatar.url
+
+        try:
+            connection = mysql.connector.connect(host='localhost',
+                                                 database = 'tutorial_bot',
+                                                 user = 'root',
+                                                 password = 'root')
+            
+            cursor = connection.cursor()
+
+            sql_select_query = "Select * from Users where user like '" + str(user) + "'"
+
+            cursor.execute(sql_select_query)
+
+            record = cursor.fetchone()
+
+            print(record)
+
+            if(record == None):
+                await interaction.response.send_message("There is no data on this individual!", ephemeral=True)
+            
+            embed = discord.Embed(
+            color=discord.Color.dark_blue(),
+            title="Stats", 
+            description=f"Statistics of {user}!"    
+            )
+            embed.add_field(name="ID: ", value=record[0])
+            embed.add_field(name="Name: ", value=record[1])
+            embed.add_field(name="Joined: ", value=record[2])
+            embed.set_thumbnail(url=pic)
+
+            
+            await interaction.response.send_message(embed=embed, ephemeral=True)
 
         except mysql.connector.Error as error:
             print("Failed to get record from MySQL table: {}".format(error))

@@ -35,9 +35,8 @@ class Greetings(commands.Cog):
         memberId = member.id
         joined = member.joined_at.date()
 
-        print(member)
-        print(name)
-        print(memberId)
+        print(str(member))
+        print(int(memberId))
         print(joined)
 
 
@@ -63,10 +62,10 @@ class Greetings(commands.Cog):
         finally:
             if connection.is_connected():
 
+                mySql_Insert_Row_Query = "INSERT INTO `users` (`Id`, `User`, `Joinedat`) VALUES (%s, %s, %s);"
+                mySql_Insert_Row_Value = (str(memberId), str(member), str(joined))
 
-                mySql_Insert_Row_Query = "INSERT INTO Users (Id, User) VALUES ({memberId}, {member})"
-
-                cursor.execute(mySql_Insert_Row_Query)
+                cursor.execute(mySql_Insert_Row_Query, mySql_Insert_Row_Value)
                 connection.commit()
 
                 cursor.close()

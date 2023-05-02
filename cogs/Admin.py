@@ -11,6 +11,8 @@ from dotenv import load_dotenv
 import wavelink
 import mysql.connector
 from mysql.connector import Error
+from datetime import datetime
+from datetime import date
 
 load_dotenv()
 
@@ -200,6 +202,80 @@ class Admin(commands.Cog):
                 cursor.close()
                 connection.close()
                 print("Mysql connection is closed")
+
+
+    @app_commands.command(name="add_user", description="Adds a user to the stats Database if they are not in it already!")
+    async def add_user_DB(self, interaction: discord.Interaction, user: discord.Member):
+
+        pic = user.avatar.url
+        name = user.name
+        pic = user.display_avatar.url
+        memberId = user.id
+        joined = user.joined_at.date()
+
+        try:
+            connection = mysql.connector.connect(host='localhost',
+                                                 database = 'tutorial_bot',
+                                                 user = 'root',
+                                                 password = 'root')
+            
+            cursor = connection.cursor()
+
+            sql_select_query = "Select * from Users where user like '" + str(user) + "'"
+
+            cursor.execute(sql_select_query)
+
+            record = cursor.fetchone()
+
+            print(record)
+
+            if(record == None):
+                mySql_Insert_Row_Query = "INSERT INTO `users` (`Id`, `User`, `Joinedat`) VALUES (%s, %s, %s);"
+                mySql_Insert_Row_Value = (str(memberId), str(user), str(joined))
+
+                cursor.execute(mySql_Insert_Row_Query, mySql_Insert_Row_Value)
+                connection.commit()
+
+                await interaction.response.send_message("Added user to the database!", ephemeral=True)
+
+            else:
+                await interaction.response.send_message("User is already in the database!", ephemeral=True)
+
+        except mysql.connector.Error as error:
+            print("Failed to get record from MySQL table: {}".format(error))
+
+        finally:
+            if connection.is_connected():
+                cursor.close()
+                connection.close()
+                print("Mysql connection is closed")
+
+
+    @app_commands.command(name="server_stats", description="Shows server stats!")
+    async def server_stats(self, interaction: discord.Interaction):
+
+        serverdate = interaction.guild.created_at.date()
+        memberamount = interaction.guild.member_count
+        serverid = interaction.guild.id
+        pic = interaction.guild.icon.url
+
+        # print(serverdate)
+        # print(memberamount)
+        # print(serverid)
+        # print(f"picture = {pic}")
+        
+
+        embed = discord.Embed(
+            color=discord.Color.blue(), 
+            title="Server Statistics", 
+            description="Here are some server Statistics"
+            )
+        embed.add_field(name="Server ID: ", value=serverid)
+        embed.add_field(name="Member Amount: ", value=memberamount)
+        embed.add_field(name="Server Created", value=serverdate)
+        embed.set_thumbnail(url=pic)
+
+        await interaction.response.send_message(embed=embed, ephemeral=True)
     
     
 

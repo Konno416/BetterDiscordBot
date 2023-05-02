@@ -47,9 +47,9 @@ class Greetings(commands.Cog):
                                                  password = 'root')
             
             mySql_Create_Table_Query = """CREATE TABLE Users (
-                                        Id int NOT NULL,
+                                        Id bigint NOT NULL,
                                         User varchar(250) NOT NULL,
-                                        Joinedat datetime,
+                                        Joinedat date,
                                         PRIMARY KEY(Id)) """
             
             cursor = connection.cursor()

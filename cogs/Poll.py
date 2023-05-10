@@ -11,6 +11,7 @@ from dotenv import load_dotenv
 import mysql.connector
 from mysql.connector import Error
 import datetime
+from discord.utils import get
 
 
 load_dotenv()
@@ -50,6 +51,8 @@ SERVERID = os.getenv("SERVERID")
 
 
 # class PollView(discord.ui.View):
+#     def __init__(self):
+#         super().__init__(timeout=None)
      
 #     @discord.ui.button(label="1", style=discord.ButtonStyle.primary)
 #     async def addOne(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -70,19 +73,41 @@ class Poll(commands.Cog):
         print("Poll.py is ready!")
         print("-------------------")
 
+    # @commands.command()
+    # @has_permissions(manage_guild=True)
+    # async def create_poll()
+
     # @app_commands.command(name="poll", description="Testing poll")
+    # @has_permissions(manage_guild=True)
     # async def poll(self, interaction: discord.Interaction, question: str, choiceone: str, choicetwo: str):
-    #     view = PollView()
+
+    #     creatorpic = interaction.user.avatar.url
+    #     creatorname = interaction.user.name
+        
     #     embed = discord.Embed(  
     #         color=discord.Color.dark_teal(),
     #         title="Poll",
-    #         description=question
+    #         description=question,
+    #         timestamp=datetime.datetime.now(datetime.timezone.utc)
     #     )
-    #     embed.add_field(name=choiceone, value=list1)
-    #     embed.add_field(name=choicetwo, value="-")
+    #     embed.add_field(name=choiceone, value=":one:") 
+    #     embed.add_field(name=choicetwo, value=":two:")
+    #     embed.set_footer(text=creatorname)
     #     await interaction.response.send_message(embed=embed)
-    #     embedId = Message.id
-    #     view.wait()
+
+    #     message: discord.Message
+    #     async for message in interaction.channel.history():
+    #         if not message.embeds:
+    #             continue
+    #         if message.embeds[0].title == embed.title and message.embeds[0].colour == embed.colour:
+    #             vote = message
+    #             break
+    #     else:
+    #         # something broke
+    #         return
+
+    #     await vote.add_reaction("<:yes:914969003645091900>")
+    #     await vote.add_reaction("<:no:914969105482809355>")
 
 
 

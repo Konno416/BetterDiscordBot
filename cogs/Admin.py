@@ -19,7 +19,7 @@ load_dotenv()
 SERVERID = os.getenv("SERVERID")
 
 #Have to make your own profane list in an array in the env file.
-profane = os.getenv("PROFANE")
+# profane = os.getenv("PROFANE")
 
 class Admin(commands.Cog):
     def __init__(self, client: commands.Bot):
@@ -30,23 +30,25 @@ class Admin(commands.Cog):
         print("Admin.py is ready!")
 
     @commands.Cog.listener()
-    async def on_message(self, message, interaction: discord.Interaction):
-        
-        for i in profane:
-            words = message.content.split()
-            for x in words:
-                if x == i:
-                    await message.delete()
-                    await user.send("Don't type that again or else!")
-                    await user.send("https://www.ilcovodelnerd.com/wp-content/uploads/2023/03/88257.png")
+    async def on_message(self, message):
+        profane = os.getenv("PROFANE_WORDS").split(",")
+        if message.author.bot:
+            return  # ignore messages from bots
+        for word in profane:
+            if word in message.content.lower():
+                await message.delete()
+                user = message.author
+                await user.send("Don't use profanity in this server or else!")
+                break  # stop checking for profanity once one is found
         await self.client.process_commands(message)
 
-    
+
+    # Causes an error where the bot does not respond
     @app_commands.command(name="clear", description="Should clear the amount of messages inputed or just typing all should delete everything")
     @has_permissions(manage_messages=True)
     async def clear(self, interaction: discord.Interaction, amount:str):
         await interaction.channel.purge(limit=(int(amount) + 1))
-        print('ran')
+        await interaction.response.send(f"Cleared {amount} from the channel!", ephemeral=True)
         
 
     @commands.command()

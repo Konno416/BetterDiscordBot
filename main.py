@@ -27,8 +27,9 @@ async def on_ready():
     print("------------------------------")
 
 async def on_node():
-    node: wavelink.Node = wavelink.Node(uri="http://lavalink.clxud.pro:2333", password="youshallnotpass")
+    node: wavelink.Node = wavelink.Node(uri="http://localhost:2333", password="youshallnotpass")
     await wavelink.NodePool.connect(client=client, nodes=[node])
+    print(node)
     wavelink.Player.autoplay = True
 
 async def load():

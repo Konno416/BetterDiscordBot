@@ -4,7 +4,6 @@ from discord import FFmpegPCMAudio
 from discord import member
 from discord import *
 from discord.ext.commands import has_permissions, MissingPermissions
-import requests
 import json
 import os
 from dotenv import load_dotenv

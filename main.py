@@ -8,8 +8,6 @@ import json
 import os
 from dotenv import load_dotenv
 import wavelink
-import mysql.connector
-from mysql.connector import Error
 
 load_dotenv()
 
@@ -22,7 +20,6 @@ client = commands.Bot(command_prefix='!', intents=discord.Intents.all())
 @client.event
 async def on_ready():
     client.loop.create_task(on_node())
-    await client.change_presence(status=discord.Status.idle, activity=discord.Game('What the dog doing?'))
     print("The bot is now ready for use!")
     print("------------------------------")
 

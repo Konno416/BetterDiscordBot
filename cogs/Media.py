@@ -4,7 +4,6 @@ from discord import FFmpegPCMAudio
 from discord import member
 from discord import *
 from discord.ext.commands import has_permissions, MissingPermissions
-import requests
 import json
 import os
 import random
@@ -71,7 +70,7 @@ class Media(commands.Cog):
 
         try:
 
-            api_response = api_instance.gifs_search_get(api_key, search, limit=5, rating='g')
+            api_response = api_instance.gifs_search_get(api_key, search, limit=5, rating='pg-13')
             lst = list(api_response.data)
             giff = random.choice(lst)
             

@@ -44,7 +44,7 @@ class Greetings(commands.Cog):
             connection = mysql.connector.connect(host='localhost',
                                                  database = 'tutorial_bot',
                                                  user = 'root',
-                                                 password = 'root')
+                                                 password = '')
             
             mySql_Create_Table_Query = """CREATE TABLE Users (
                                         Id bigint NOT NULL,

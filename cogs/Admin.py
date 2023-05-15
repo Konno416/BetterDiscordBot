@@ -41,15 +41,24 @@ class Admin(commands.Cog):
                 await user.send("Don't use profanity in this server or else!")
                 break  # stop checking for profanity once one is found
         await self.client.process_commands(message)
+    
 
-
-    # Causes an error where the bot does not respond
-    @app_commands.command(name="clear", description="Should clear the amount of messages inputed or just typing all should delete everything")
+    @commands.command()
     @has_permissions(manage_messages=True)
-    async def clear(self, interaction: discord.Interaction, amount:str):
-        await interaction.channel.purge(limit=(int(amount) + 1))
-        await interaction.response.send(f"Cleared {amount} from the channel!", ephemeral=True)
-        
+    async def clear(self, ctx, amount: int):
+        """Clears the specified number of messages."""
+        # Add a check to ensure the user has the necessary permissions if required.
+
+        # Delete the command message
+        await ctx.message.delete()
+
+        # Delete the desired number of messages
+        deleted = await ctx.channel.purge(limit=amount)
+
+        # Send a response about the number of deleted messages
+        response = f"Cleared {len(deleted)} messages."
+        await ctx.send(response, delete_after=5)  # Delete the response after 5 seconds
+
 
     @commands.command()
     @has_permissions(kick_members=True)
@@ -89,7 +98,7 @@ class Admin(commands.Cog):
             connection = mysql.connector.connect(host='localhost',
                                                  database = 'tutorial_bot',
                                                  user = 'root',
-                                                 password = 'root')
+                                                 password = '')
             
             mySql_Create_Table_Query = """CREATE TABLE DB_""" + str(guild) + """ (
                                         Id int(11) NOT NULL AUTO_INCREMENT,
@@ -132,7 +141,7 @@ class Admin(commands.Cog):
             connection = mysql.connector.connect(host='localhost',
                                                  database = 'tutorial_bot',
                                                  user = 'root',
-                                                 password = 'root')
+                                                 password = '')
             
             cursor = connection.cursor()
 
@@ -168,7 +177,7 @@ class Admin(commands.Cog):
             connection = mysql.connector.connect(host='localhost',
                                                  database = 'tutorial_bot',
                                                  user = 'root',
-                                                 password = 'root')
+                                                 password = '')
             
             cursor = connection.cursor()
 
@@ -219,7 +228,7 @@ class Admin(commands.Cog):
             connection = mysql.connector.connect(host='localhost',
                                                  database = 'tutorial_bot',
                                                  user = 'root',
-                                                 password = 'root')
+                                                 password = '')
             
             cursor = connection.cursor()
 

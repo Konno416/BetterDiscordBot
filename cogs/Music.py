@@ -3,8 +3,6 @@ from discord import app_commands
 from discord.ext import commands
 from discord import *
 from discord.ext.commands import has_permissions, MissingPermissions
-import requests
-import json
 import os
 from dotenv import load_dotenv
 import wavelink

@@ -8,8 +8,6 @@ import json
 import os
 from dotenv import load_dotenv
 import wavelink
-import mysql.connector
-from mysql.connector import Error
 
 load_dotenv()
 
@@ -22,13 +20,13 @@ client = commands.Bot(command_prefix='!', intents=discord.Intents.all())
 @client.event
 async def on_ready():
     client.loop.create_task(on_node())
-    await client.change_presence(status=discord.Status.idle, activity=discord.Game('What the dog doing?'))
     print("The bot is now ready for use!")
     print("------------------------------")
 
 async def on_node():
-    node: wavelink.Node = wavelink.Node(uri="http://lavalink.clxud.pro:2333", password="youshallnotpass")
+    node: wavelink.Node = wavelink.Node(uri="http://localhost:2333", password="youshallnotpass")
     await wavelink.NodePool.connect(client=client, nodes=[node])
+    print(node)
     wavelink.Player.autoplay = True
 
 async def load():

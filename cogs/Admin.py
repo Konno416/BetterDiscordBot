@@ -1,10 +1,12 @@
+import traceback
 import discord
 from discord.ext import commands
 from discord import FFmpegPCMAudio
 from discord import member
 from discord import *
+from discord import File
+from typing import Optional
 from discord.ext.commands import has_permissions, MissingPermissions
-import requests
 import json
 import os
 from dotenv import load_dotenv
@@ -13,6 +15,12 @@ import mysql.connector
 from mysql.connector import Error
 from datetime import datetime
 from datetime import date
+from easy_pil import Editor, load_image_async, Font
+
+level = ['Level-5+', "Level-10+", "Level-15+"]
+
+level_num = [5, 10, 15]
+
 
 load_dotenv()
 
@@ -30,7 +38,7 @@ class Admin(commands.Cog):
         print("Admin.py is ready!")
 
     @commands.Cog.listener()
-    async def on_message(self, message):
+    async def on_message(self, message: Message):
         profane = os.getenv("PROFANE_WORDS").split(",")
         if message.author.bot:
             return  # ignore messages from bots
@@ -40,7 +48,150 @@ class Admin(commands.Cog):
                 user = message.author
                 await user.send("Don't use profanity in this server or else!")
                 break  # stop checking for profanity once one is found
+        # print(message)
+        if not message.content.startswith("!"):
+            # print(message)
+            if not message.author.bot:
+                # print(message)
+                try:
+                    with open("levels.json", "r") as f:
+                        data = json.load(f)
+                except (FileNotFoundError, json.JSONDecodeError):
+                    data = {}
+                    
+                if str(message.author.id) in data:
+                    xp = data[str(message.author.id)]['xp']
+                    lvl = data[str(message.author.id)]['level']
+                        
+                    #increases the xp
+                    increased_xp = xp+25
+                    new_level = int(increased_xp/100)
+
+                    data[str(message.author.id)]['xp']=increased_xp
+
+                    with open("levels.json", 'w') as f:
+                        json.dump(data, f)
+                        
+                    if new_level > lvl:
+                        await message.channel.send(f"{message.author.mention} Just Leveled Up to Level {new_level}!!!")
+                            
+                        data[str(message.author.id)]['level']=new_level
+                        data[str(message.author.id)]['xp']=0
+
+                        with open("levels.json", "w") as f:
+                            json.dump(data, f)
+
+                        for i in range(len(level)):
+                            if new_level == level_num[i]:
+                                await message.author.add_roles(discord.utils.get(message.author.guild.roles, name=level[i]))
+
+                                embed = discord.Embed(title=f"{message.author} You Have Gotten role **{level[i]}**", color=message.author.colour)
+
+                                embed.set_thumbnail(url=message.author.avatar.url)
+                                await message.channel.send(embed=embed)
+
+                else:
+                    data[str(message.author.id)] = {}
+                    data[str(message.author.id)]['xp'] = 0
+                    data[str(message.author.id)]['level'] = 1
+                    print(data)
+
+                    with open("levels.json", "w") as f:
+                        json.dump(data, f)
+
         await self.client.process_commands(message)
+
+    @commands.command(name="rank")
+    async def rank(self, ctx: commands.Context, user: Optional[discord.Member]):
+        userr = user or ctx.author
+
+        with open("levels.json", "r") as f:
+            data = json.load(f)
+        
+        xp = data[str(userr.id)]["xp"]
+        lvl = data[str(userr.id)]["level"]
+
+        next_levelup_xp = (lvl+1)*100
+        xp_need = next_levelup_xp
+        xp_have = data[str(userr.id)]["xp"]
+
+        percentage = int(((xp_have*100)/xp_need))
+
+        background = Editor("zImage.png")
+        profile = await load_image_async(str(userr.avatar.url))
+
+        profile = Editor(profile).resize((150, 150)).circle_image()
+
+        poppins = Font.poppins(size=40)
+        poppins_small = Font.poppins(size=30)
+
+        ima = Editor("zBlack.png")
+        background.blend(image=ima, alpha=.5, on_top=False)
+
+        background.rectangle((30, 220), width=650, height=40, fill="#fff", radius=20)
+        background.bar(
+            (30, 220),
+            max_width=650,
+            height=40,
+            percentage=percentage,
+            fill="#ff9933",
+            radius=20,
+        )
+        background.text((200, 40), str(userr.name), font=poppins, color="#ff9933")
+
+        background.rectangle((200, 40), width=350, height=2, fill="#ff9933")
+        background.text(
+            (200, 130),
+            f"Level : {lvl}"
+            + f"xp : {xp} / {(lvl+1)*100}",
+            font=poppins_small,
+            color="#ff9933"
+        )
+
+        card = File(fp=background.image_bytes, filename="zCard.png")
+        await ctx.send(file=card)
+    
+    @commands.command(name="leaderboard")
+    async def leaderboard(self, ctx, range_num=5):
+        with open("levels.json", "r") as f:
+            data = json.load(f)
+        
+        l = {}
+        total_xp = []
+
+        for userid in data:
+            xp = int(data[str(userid)]["xp"])+(int(data[str(userid)]['level']*100))
+
+            l[xp] = f"{userid};{data[str(userid)]['xp']};{data[str(userid)]['level']}"
+            total_xp.append(xp)
+
+        total_xp = sorted(total_xp, reverse=True)
+        index=1
+
+        mbed = discord.Embed(
+            title="Leaderboard"
+        )
+
+        for amt in total_xp:
+            id_ = int(str(l[amt]).split(";")[0])
+            level = int(str(l[amt]).split(";")[1])
+            xp = int(str(l[amt]).split(";")[2])
+
+            member = await self.client.fetch_user(id_)
+
+            if member is not None:
+                name = member.name
+                mbed.add_field(name=f"{index}. {name}",
+                value=f"**Level: {level} | XP: {xp}**",
+                inline=False)
+
+                if index == range_num:
+                    break
+                else:
+                    index += 1
+
+        await ctx.send(embed=mbed)
+    
     
 
     @commands.command()

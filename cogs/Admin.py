@@ -1,3 +1,4 @@
+import asyncio
 import traceback
 import discord
 from discord.ext import commands
@@ -32,14 +33,41 @@ SERVERID = os.getenv("SERVERID")
 class Admin(commands.Cog):
     def __init__(self, client: commands.Bot):
         self.client = client
+        self.spam_limit = 5
+        self.spam_detect_file = "spam_detect.txt"
 
     @commands.Cog.listener()
     async def on_ready(self):
         print("Admin.py is ready!")
+        while True:
+            print("Cleared")
+            await asyncio.sleep(8)
+            with open(self.spam_detect_file, "r+") as file:
+                file.truncate(0)
 
     @commands.Cog.listener()
     async def on_message(self, message: Message):
-        profane = os.getenv("PROFANE_WORDS").split(",")
+        counter = 0
+        with open(self.spam_detect_file, "r+") as file:
+            for line in file:
+                if line.strip("\n") == str(message.author.id):
+                    counter += 1
+
+            file.writelines(f"{str(message.author.id)}\n")
+            if counter > self.spam_limit:
+                await message.channel.send(f"{message.author.mention} Stop spamming!")
+
+            if message.content.startswith('!poll'):
+                options = message.content.split(";")
+                question = options.pop(0)[6:]
+                if len(question) > 0 and len(options) > 1:
+                    poll_message = await message.channel.send("**Poll:** " + question + "\n\n" + "\n".join([f"{i+1}. {option.strip()}" for i, option in enumerate(options)]))
+                    for i in range(len(options)):
+                        await poll_message.add_reaction(f"{i+1}\N{COMBINING ENCLOSING KEYCAP}")
+                else:
+                    await message.channel.send("Please provide a question and at least two options for the poll in the format `!poll question; option 1; option 2; ...`")
+
+        profane = os.getenv("PROFANE_WORDS").split(",") 
         if message.author.bot:
             return  # ignore messages from bots
         for word in profane:
@@ -48,11 +76,11 @@ class Admin(commands.Cog):
                 user = message.author
                 await user.send("Don't use profanity in this server or else!")
                 break  # stop checking for profanity once one is found
-        # print(message)
+        
         if not message.content.startswith("!"):
-            # print(message)
+            
             if not message.author.bot:
-                # print(message)
+                # Checks if there is any data in the file first before continuing so as not to cause an empty json file error
                 try:
                     with open("levels.json", "r") as f:
                         data = json.load(f)

@@ -29,24 +29,26 @@ class Music(commands.Cog):
     #Plays the music
     @app_commands.command(name="play", description="Plays the song requested")
     async def play(self, interaction: discord.Interaction, search: str):
+        try:
+            query = await wavelink.YouTubeTrack.search(search, return_first=True)
+            destination = interaction.user.voice.channel
 
-        query = await wavelink.YouTubeTrack.search(search, return_first=True)
-        destination = interaction.user.voice.channel
+            if not interaction.guild.voice_client:
 
-        if not interaction.guild.voice_client:
+                vc: wavelink.Player = await destination.connect(cls=wavelink.Player)
+            else:
 
-            vc: wavelink.Player = await destination.connect(cls=wavelink.Player)
-        else:
+                vc: wavelink.Player = interaction.guild.voice_client
 
-            vc: wavelink.Player = interaction.guild.voice_client
+            if vc.queue.is_empty and not vc.is_playing():
 
-        if vc.queue.is_empty and not vc.is_playing():
-
-            await vc.play(query)
-            await interaction.response.send_message(f'Now Playing {vc.current.title}')
-        else:
-            await vc.queue.put_wait(query)
-            await interaction.response.send_message(f'Song was added to the queue')
+                await vc.play(query)
+                await interaction.response.send_message(f'Now Playing {vc.current.title}')
+            else:
+                await vc.queue.put_wait(query)
+                await interaction.response.send_message(f'Song was added to the queue')
+        except Exception as e:
+            print(e)
 
 
     #Skips the current song

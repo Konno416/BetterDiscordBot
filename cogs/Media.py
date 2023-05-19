@@ -37,7 +37,7 @@ class Media(commands.Cog):
         print("Media.py is ready!")
     
     @app_commands.command(name="punch", description="Punches the person you mention")
-    async def punch(self, interaction: discord.Interaction, user: discord.Member):
+    async def punch_user(self, interaction: discord.Interaction, user: discord.Member):
         pic = self.client.user.display_avatar.url
         
         embed = discord.Embed(
@@ -50,7 +50,7 @@ class Media(commands.Cog):
         await interaction.response.send_message(embed=embed)
 
     @app_commands.command(name="kick", description="Kicks the person you mention")
-    async def kick(self, interaction: discord.Interaction, user: discord.Member):
+    async def kick_user(self, interaction: discord.Interaction, user: discord.Member):
         pic = self.client.user.display_avatar.url
         
         embed = discord.Embed(

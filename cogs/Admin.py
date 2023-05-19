@@ -179,6 +179,15 @@ class Admin(commands.Cog):
         card = File(fp=background.image_bytes, filename="zCard.png")
         await ctx.send(file=card)
     
+
+    @commands.command()
+    @commands.is_owner()
+    async def shutdown(self, ctx: commands.Context):
+        """Shutdown the bot."""
+        await ctx.send("Shutting down...")
+        await self.client.close()
+
+    
     @commands.command(name="leaderboard")
     async def leaderboard(self, ctx, range_num=5):
         with open("levels.json", "r") as f:
@@ -241,7 +250,7 @@ class Admin(commands.Cog):
 
     @commands.command()
     @has_permissions(kick_members=True)
-    async def kick(self, ctx, member: discord.Member, *, reason=None):
+    async def kick(self, ctx, member: discord.Member, reason=None):
         await member.kick(reason=reason)
         await ctx.send(f'User {member} has been kicked')
 
